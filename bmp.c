@@ -18,15 +18,15 @@ int main(int argc, char **argv) {
   printf("Argc: %d\n", argc);
   printf("Argv: %s\n", argv[0]);
 
-  uint32_t width = 1282;
-  uint32_t height = 1282;
+  uint32_t width = 1920;
+  uint32_t height = 1920;
   uint16_t bits_per_pixel = 8;
 
   bmp_header_t header = create_header(width, height, bits_per_pixel);
   bmp_info_header_t info_header =
       create_info_header(width, height, bits_per_pixel);
   bmp_pixel_data_t pixel_data =
-      create_random_pixel_data(width, height, bits_per_pixel);
+      create_ramp_pixel_data(width, height, bits_per_pixel);
 
   FILE *fh = fopen("./test.bmp", "wb");
 
@@ -118,9 +118,9 @@ bmp_pixel_data_t create_random_pixel_data(uint32_t width, uint32_t height,
   srand(time(NULL));
 
   for (uint32_t x = 0; x < width * height; x++) {
-    uint8_t random_pixel_color_r = rand() * bpp % 255;
-    uint8_t random_pixel_color_g = rand() * bpp % 255;
-    uint8_t random_pixel_color_b = rand() * bpp % 255;
+    uint8_t random_pixel_color_r = rand() % ((1 << bpp) - 1);
+    uint8_t random_pixel_color_g = rand() % ((1 << bpp) - 1);
+    uint8_t random_pixel_color_b = rand() % ((1 << bpp) - 1);
 
     const bmp_color_table_t pixel = {.r = random_pixel_color_r,
                                      .g = random_pixel_color_g,
@@ -131,6 +131,35 @@ bmp_pixel_data_t create_random_pixel_data(uint32_t width, uint32_t height,
     payload->g = pixel.g;
     payload->b = pixel.b;
     payload->reserved = pixel.reserved;
+    payload++;
+  }
+
+  pixel_data.data = beginning_of_payload;
+
+  return pixel_data;
+}
+
+bmp_pixel_data_t create_ramp_pixel_data(uint32_t width, uint32_t height,
+                                        uint16_t bpp) {
+  bmp_pixel_data_t pixel_data = {.data = NULL};
+
+  bmp_color_table_t *payload =
+      (bmp_color_table_t *)malloc(sizeof(bmp_color_table_t) * width * height);
+  bmp_color_table_t *beginning_of_payload = payload;
+
+  uint8_t r = 0;
+  uint8_t g = 0;
+  uint8_t b = 0;
+
+  for (uint32_t x = 0; x < width * height; x++) {
+    r = x % ((1 << bpp) - 1);
+    g = 0;
+    b = 0;
+
+    payload->r = r;
+    payload->g = g;
+    payload->b = b;
+    payload->reserved = 0;
     payload++;
   }
 

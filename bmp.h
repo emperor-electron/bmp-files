@@ -66,5 +66,9 @@ bmp_header_t create_header(uint32_t width, uint32_t height, uint16_t bpp);
 bmp_info_header_t create_info_header(uint32_t width, uint32_t height,
                                      uint16_t bpp);
 bmp_color_table_t create_color_table();
+
 bmp_pixel_data_t create_random_pixel_data(uint32_t width, uint32_t height,
                                           uint16_t bpp);
+
+bmp_pixel_data_t create_ramp_pixel_data(uint32_t width, uint32_t height,
+                                        uint16_t bpp);
